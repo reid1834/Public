@@ -133,7 +133,8 @@ public class AsynImageLoader {
 					Task task = taskQueue.remove(0);
 					//将要加载的图片添加到缓存
 					//task.bitmap = ImageUtil.getbitmap(task.path);
-					try {
+					//该方法获取bitmap会出现OOM
+					/*try {
 						mByteContent = ImageUtil.readInputStream(mContent.getContentResolver().openInputStream(Uri.parse(task.path)));
 						task.bitmap = ImageUtil.getBitmapFromBytes(mByteContent, null);
 					} catch (FileNotFoundException e) {
@@ -142,7 +143,9 @@ public class AsynImageLoader {
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}
+					}*/
+					task.bitmap = ImageUtil.getBitmapFromUri(mContent, Uri.parse(task.path));
+					
 					caches.put(task.path, new SoftReference<Bitmap>(task.bitmap));
 					if (handler != null) {
 						//创建纤细对象，并将完成的任务添加到消息对象中

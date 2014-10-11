@@ -13,9 +13,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.AvoidXfermode.Mode;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
@@ -27,7 +29,9 @@ import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.opengl.Matrix;
+import android.provider.MediaStore;
 import android.util.Log;
 
 public class ImageUtil {
@@ -157,7 +161,7 @@ public class ImageUtil {
    public static Bitmap getBitmapFromBytes(byte[] bytes, BitmapFactory.Options opts) {
 	   if (bytes != null){
 		   if (opts != null){ 
-			   return BitmapFactory.decodeByteArray(bytes, 0, bytes.length,opts); 
+			   return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, opts); 
 		   }
            else{
         	   return BitmapFactory.decodeByteArray(bytes, 0, bytes.length); 
@@ -167,6 +171,42 @@ public class ImageUtil {
        return null; 
    } 
 	
+   public static Bitmap getBitmapFromUri(Context content, Uri uri) {
+	   Bitmap bitmap = null;
+	   
+	   bitmap = lessenUriImage(getPatch(content, uri));
+	   
+	   return bitmap;
+   }
+   
+   private static String getPatch(Context content, Uri uri) {
+	   String[] projection = {MediaStore.Images.Media.DATA};
+	   Cursor cursor = content.getContentResolver().query(uri, projection, null, null, null);
+	   int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+	   cursor.moveToFirst();
+	   
+	   return cursor.getString(column_index);
+   }
+   
+   private final static Bitmap lessenUriImage(String path) {
+	   BitmapFactory.Options options = new BitmapFactory.Options();
+	   options.inJustDecodeBounds = true;
+	   Bitmap bitmap = BitmapFactory.decodeFile(path, options);//此时返回bm为空
+	   options.inJustDecodeBounds = false;//缩放比。由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
+	   
+	   int be = (int)(options.outHeight/(float)320);
+	   if (be <= 0) {
+		   be = 1;
+	   }
+	   options.inSampleSize = be;//重新读入图片，注意此时已经把options.inJustDecodeBounds设回false了
+	   bitmap = BitmapFactory.decodeFile(path, options);
+	   int w = bitmap.getWidth();
+	   int h = bitmap.getHeight();
+	   Log.d(TAG, "w = " + w +  ", h = " + h);
+	   
+	   return bitmap;
+   }
+   
 	/**
 	 * 下载图片 同时写道本地缓存文件中
 	 * 

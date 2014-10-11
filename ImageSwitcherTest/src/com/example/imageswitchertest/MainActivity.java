@@ -31,6 +31,7 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 	private boolean isRun=true;
 	private static final int SHOW_NEXT=1;
 	private AsynImageLoader asynImageLoader;
+	private static boolean isPause = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,22 +41,38 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 		asynImageLoader = new AsynImageLoader(this);
 		imageSwitcher = (ImageSwitcher)findViewById(R.id.image_switcher);
 		imageSwitcher.setFactory(this);
-		getImageUri();
+		updateImageUri();
+		showNextImage();
 		//自动播放图片启动
 		AutoShowImage.start();
 		this.getContentResolver().registerContentObserver(uri, true, cob);
-		
 	}
-	
-	Thread AutoShowImage=new Thread(){
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		isPause = false;
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		isPause = true;
+	}
+
+	Thread AutoShowImage = new Thread(){
 		
 		public void run(){
 			while(isRun){
 				try {
-					Thread.sleep(5000);
-					Message msg=new Message();
-					msg.what=SHOW_NEXT;
-					handler.sendMessage(msg);
+					if (!isPause) {
+						Thread.sleep(5000);
+						Message msg=new Message();
+						msg.what=SHOW_NEXT;
+						handler.sendMessage(msg);
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					isRun=false;
@@ -81,13 +98,13 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 		
 		Random random = new Random();
 		int index = random.nextInt(maxIndex)%(maxIndex - minIndex + 1) + minIndex;
-		Log.d(TAG, "index = " + index);
+		Log.d(TAG, "index = " + index + ", maxIndex = " + maxIndex);
 		
 		asynImageLoader.showImageAsyn(imageSwitcher, imageUri.get(index).toString(), R.drawable.ic_launcher);
 		
 	}
 	
-	public void getImageUri() {
+	public void updateImageUri() {
 		Cursor cursor = this.getContentResolver().query(uri, STORE_IMAGES, null, null, null);
 		while (cursor.moveToNext()) {
 			long id = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID));
@@ -102,6 +119,7 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		isPause = true;
 		this.getContentResolver().unregisterContentObserver(cob);
 	}
 
@@ -115,7 +133,7 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 		public void onChange(boolean selfChange) {
 			Log.d(TAG, "image uri change!!!");
 			super.onChange(selfChange);
-			getImageUri();
+			updateImageUri();
 		}
 	}
 
