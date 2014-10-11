@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.widget.ImageSwitcher;
-import android.widget.ImageView;
 
 public class AsynImageLoader {
 	private static final String TAG = "AsynImageLoader";

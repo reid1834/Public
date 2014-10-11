@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,9 +14,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageSwitcher;
+import android.widget.ImageView;
+import android.widget.ViewSwitcher.ViewFactory;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener, ViewFactory{
 	
 	private static final String TAG = "liyang";
 	ArrayList<Uri> imageUri = new ArrayList<Uri>();
@@ -33,7 +38,7 @@ public class MainActivity extends Activity {
 		
 		asynImageLoader = new AsynImageLoader(this);
 		imageSwitcher = (ImageSwitcher)findViewById(R.id.image_switcher);
-		
+		imageSwitcher.setFactory(this);
 		getImageUri();
 		//自动播放图片启动
 		AutoShowImage.start();
@@ -111,5 +116,18 @@ public class MainActivity extends Activity {
 			super.onChange(selfChange);
 			getImageUri();
 		}
+	}
+
+	@Override
+	public View makeView() {
+		// TODO Auto-generated method stub
+		//将所有图片通过ImageView来
+		return new ImageView(this);
+	}
+
+	@Override
+	public void onClick(DialogInterface arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 }
