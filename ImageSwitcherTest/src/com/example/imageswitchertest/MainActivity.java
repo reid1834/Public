@@ -3,6 +3,7 @@ package com.example.imageswitchertest;
 import java.util.ArrayList;
 import java.util.Random;
 
+import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -122,7 +123,10 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 	public View makeView() {
 		// TODO Auto-generated method stub
 		//将所有图片通过ImageView来
-		return new ImageView(this);
+		ImageView imageView = new ImageView(this);
+		imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+		imageView.setLayoutParams(new ImageSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		return imageView;
 	}
 
 	@Override
