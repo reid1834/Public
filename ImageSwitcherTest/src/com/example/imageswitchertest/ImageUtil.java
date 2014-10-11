@@ -2,6 +2,7 @@ package com.example.imageswitchertest;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -110,8 +111,7 @@ public class ImageUtil {
 		Bitmap bitmap = null;
 		try {
 			URL myFileUrl = new URL(imageUri);
-			HttpURLConnection conn = (HttpURLConnection) myFileUrl
-					.openConnection();
+			HttpURLConnection conn = (HttpURLConnection) myFileUrl.openConnection();
 			conn.setDoInput(true);
 			conn.connect();
 			InputStream is = conn.getInputStream();
@@ -126,6 +126,47 @@ public class ImageUtil {
 		return bitmap;
 	}
 
+	/**
+     * InputStream to byte
+     * @param inStream
+     * @return
+     * @throws Exception
+     */
+    public static byte[] readInputStream(InputStream inStream) throws Exception { 
+        byte[] buffer = new byte[1024]; 
+        int len = -1; 
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        
+        while ((len = inStream.read(buffer)) != -1) { 
+        	outStream.write(buffer, 0, len); 
+        }
+        
+        byte[] data = outStream.toByteArray(); 
+        outStream.close(); 
+        inStream.close();
+        
+        return data; 
+   } 
+    
+   /**
+    * Byte to bitmap
+    * @param bytes
+    * @param opts
+    * @return
+    */
+   public static Bitmap getBitmapFromBytes(byte[] bytes, BitmapFactory.Options opts) {
+	   if (bytes != null){
+		   if (opts != null){ 
+			   return BitmapFactory.decodeByteArray(bytes, 0, bytes.length,opts); 
+		   }
+           else{
+        	   return BitmapFactory.decodeByteArray(bytes, 0, bytes.length); 
+           }
+	   }
+	   
+       return null; 
+   } 
+	
 	/**
 	 * 下载图片 同时写道本地缓存文件中
 	 * 

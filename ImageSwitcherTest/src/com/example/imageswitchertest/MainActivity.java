@@ -1,6 +1,7 @@
 package com.example.imageswitchertest;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import android.app.Activity;
 import android.database.ContentObserver;
@@ -8,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageSwitcher;
@@ -20,15 +22,63 @@ public class MainActivity extends Activity {
 	private static final Uri uri = Uri.parse(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString());
 	private static final String[] STORE_IMAGES = {MediaStore.Images.Media._ID};
 	private ImageSwitcher imageSwitcher;
+	private boolean isRun=true;
+	private static final int SHOW_NEXT=1;
+	private AsynImageLoader asynImageLoader;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		asynImageLoader = new AsynImageLoader(this);
 		imageSwitcher = (ImageSwitcher)findViewById(R.id.image_switcher);
 		
-		this.getContentResolver().registerContentObserver(uri, true, cob);
 		getImageUri();
+		//自动播放图片启动
+		AutoShowImage.start();
+		this.getContentResolver().registerContentObserver(uri, true, cob);
+		
+	}
+	
+	Thread AutoShowImage=new Thread(){
+		
+		public void run(){
+			while(isRun){
+				try {
+					Thread.sleep(5000);
+					Message msg=new Message();
+					msg.what=SHOW_NEXT;
+					handler.sendMessage(msg);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					isRun=false;
+					e.printStackTrace();
+				}
+			}
+		}
+	};
+	
+	Handler handler=new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			if(msg.what==SHOW_NEXT){
+				showNextImage();
+			}
+		}
+	};
+	
+	public void showNextImage() {
+		int minIndex = 0;
+		int maxIndex = imageUri.size();
+		
+		Random random = new Random();
+		int index = random.nextInt(maxIndex)%(maxIndex - minIndex + 1) + minIndex;
+		Log.d(TAG, "index = " + index);
+		
+		asynImageLoader.showImageAsyn(imageSwitcher, imageUri.get(index).toString(), R.drawable.ic_launcher);
+		
 	}
 	
 	public void getImageUri() {

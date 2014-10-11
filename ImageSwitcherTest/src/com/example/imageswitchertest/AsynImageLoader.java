@@ -1,27 +1,35 @@
 package com.example.imageswitchertest;
 
+import java.io.FileNotFoundException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 
 public class AsynImageLoader {
 	private static final String TAG = "AsynImageLoader";
+	public static final String CACHE_DIR = "/DICM/Cache/";
 	//缓存读取过的图片的Map
 	private Map<String, SoftReference<Bitmap>> caches;
 	//任务队列
 	private List<Task> taskQueue;
 	private boolean isRunning = false;
+	private Context mContent;
 	
-	public AsynImageLoader() {
+	public AsynImageLoader(Context content) {
 		//初始化变量
+		mContent = content;
 		caches = new HashMap<String, SoftReference<Bitmap>>();
 		taskQueue = new ArrayList<AsynImageLoader.Task>();
 		//启动图片加载线程
@@ -34,14 +42,14 @@ public class AsynImageLoader {
 	 * param url 图片的URL地址
 	 * param resId 图片加载过程中显示的图片资源
 	 */
-	public void showImageAsyn(ImageView imageView, String url, int resId) {
-		imageView.setTag(url);
-		Bitmap bitmap = loadImageAsyn(url, getImageCallback(imageView, resId));
+	public void showImageAsyn(ImageSwitcher imageSwitcher, String url, int resId) {
+		imageSwitcher.setTag(url);
+		Bitmap bitmap = loadImageAsyn(url, getImageCallback(imageSwitcher, resId));
 		
 		if (bitmap == null) {
-			imageView.setImageResource(resId);
+			imageSwitcher.setImageResource(resId);
 		} else {
-			imageView.setImageBitmap(bitmap);
+			imageSwitcher.setImageDrawable(new BitmapDrawable(bitmap));
 		}
 	}
 	
@@ -89,16 +97,16 @@ public class AsynImageLoader {
 	 * @param resId 图片加载完成前显示的图片资源ID
 	 * @return
 	 */
-	private ImageCallback getImageCallback(final ImageView imageView, final int resId) {
+	private ImageCallback getImageCallback(final ImageSwitcher imageSwitcher, final int resId) {
 		return new ImageCallback() {
 			
 			@Override
 			public void loadImage(String path, Bitmap bitmap) {
 				// TODO Auto-generated method stub
-				if (path.equals(imageView.getTag().toString())) {
-					imageView.setImageBitmap(bitmap);
+				if (path.equals(imageSwitcher.getTag().toString())) {
+					imageSwitcher.setImageDrawable(new BitmapDrawable(bitmap));
 				} else {
-					imageView.setImageResource(resId);
+					imageSwitcher.setImageResource(resId);
 				}
 			}
 		};
@@ -121,10 +129,21 @@ public class AsynImageLoader {
 			while(isRunning) {
 				//当队列中还有未处理的任务时，执行加载任务
 				while(taskQueue.size() > 0) {
+					byte[] mByteContent = null;
 					//获取第一个任务,并将之从任务队列中删除
 					Task task = taskQueue.remove(0);
 					//将要加载的图片添加到缓存
-					task.bitmap = ImageUtil.getbitmap(task.path);
+					//task.bitmap = ImageUtil.getbitmap(task.path);
+					try {
+						mByteContent = ImageUtil.readInputStream(mContent.getContentResolver().openInputStream(Uri.parse(task.path)));
+						task.bitmap = ImageUtil.getBitmapFromBytes(mByteContent, null);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					caches.put(task.path, new SoftReference<Bitmap>(task.bitmap));
 					if (handler != null) {
 						//创建纤细对象，并将完成的任务添加到消息对象中
