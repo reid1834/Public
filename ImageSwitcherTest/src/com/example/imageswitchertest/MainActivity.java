@@ -7,6 +7,7 @@ import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -20,7 +21,7 @@ import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.ViewSwitcher.ViewFactory;
 
-public class MainActivity extends Activity implements OnClickListener, ViewFactory{
+public class MainActivity extends Activity implements ViewFactory{
 	
 	private static final String TAG = "liyang";
 	ArrayList<Uri> imageUri = new ArrayList<Uri>();
@@ -32,6 +33,7 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 	private static final int SHOW_NEXT=1;
 	private AsynImageLoader asynImageLoader;
 	private static boolean isPause = false;
+	private int mCurrentImageIndex = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,19 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 		
 		asynImageLoader = new AsynImageLoader(this);
 		imageSwitcher = (ImageSwitcher)findViewById(R.id.image_switcher);
+		imageSwitcher.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				Uri mCurrentImageUri = imageUri.get(getmCurrentImageIndex());
+				Log.d(TAG, "mCurrentImageUri: " + mCurrentImageUri);
+				
+				Intent intent = new Intent(Intent.ACTION_VIEW, mCurrentImageUri);
+				intent.putExtra("isImageSwitcher", true);
+				startActivity(intent);
+			}
+		});
 		imageSwitcher.setFactory(this);
 		updateImageUri();
 		showNextImage();
@@ -98,6 +113,7 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 		
 		Random random = new Random();
 		int index = random.nextInt(maxIndex)%(maxIndex - minIndex + 1) + minIndex;
+		setmCurrentImageIndex(index);
 		Log.d(TAG, "index = " + index + ", maxIndex = " + maxIndex);
 		
 		asynImageLoader.showImageAsyn(imageSwitcher, imageUri.get(index).toString(), R.drawable.ic_launcher);
@@ -147,9 +163,12 @@ public class MainActivity extends Activity implements OnClickListener, ViewFacto
 		return imageView;
 	}
 
-	@Override
-	public void onClick(DialogInterface arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
+	public int getmCurrentImageIndex() {
+		return mCurrentImageIndex;
 	}
+
+	public void setmCurrentImageIndex(int mCurrentIndex) {
+		this.mCurrentImageIndex = mCurrentIndex;
+	}
+	
 }
