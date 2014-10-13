@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -87,8 +88,8 @@ public class AsynImageLoader {
 				}
 			}
 		}
-		//缓存中没有图片则返回null
-		return null;
+
+		return ImageUtil.getBitmapFromUri(mContent, Uri.parse(path));
 	}
 	
 	/**
