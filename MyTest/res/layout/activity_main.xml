@@ -1,0 +1,33 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CC708090"
+    android:orientation="vertical">
+
+    <!-- <com.example.mytest.CircleWaveView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/> -->
+   
+    <com.example.mytest.CyShutterAnimation 
+        android:id="@+id/shutter_anim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+    
+    <LinearLayout 
+        android:id="@+id/shutter_bg"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center" >
+        
+        <ImageView 
+            android:id="@+id/ic_shutter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/mz_btn_shutter_default" />
+    </LinearLayout>    
+</FrameLayout>
+
