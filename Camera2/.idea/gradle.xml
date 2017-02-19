@@ -10,6 +10,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/camera" />
+            <option value="$PROJECT_DIR$/cameravideoapplication" />
+            <option value="$PROJECT_DIR$/youtubeapplication" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

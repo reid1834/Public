@@ -23,18 +23,6 @@
         android:contentDescription="@string/video_button"
         app:srcCompat="@mipmap/btn_video_online" />
 
-    <ImageButton
-        android:id="@+id/btn_capture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/btn_video"
-        android:layout_marginLeft="38dp"
-        android:layout_marginStart="38dp"
-        android:contentDescription="@string/camera_button"
-        app:srcCompat="@mipmap/btn_camera" />
-
     <Chronometer
         android:id="@+id/chronometer"
         android:layout_width="wrap_content"
@@ -44,4 +32,14 @@
         android:textColor="#ff0000"
         android:textSize="25dp"
         android:visibility="invisible" />
+
+    <ImageButton
+        android:id="@+id/btn_capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="38dp"
+        android:contentDescription="@string/camera_button"
+        app:srcCompat="@mipmap/btn_camera"
+        android:layout_alignTop="@+id/btn_video"
+        android:layout_toStartOf="@+id/btn_video" />
 </RelativeLayout>
